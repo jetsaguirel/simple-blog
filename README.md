@@ -1,21 +1,24 @@
 # Simple Blog
 
-A full-stack blog application built with Node.js and Express. Currently features a modular backend architecture with API versioning, middleware, and structured organization.
+A full-stack blog application built with modern web technologies. Features a professional Node.js/Express.js backend with MongoDB Atlas integration, environment-aware configuration, and scalable architecture designed for production use.
 
 ## Project Structure
 
 ```
 simple-blog/
-├── backend/          # Express.js API server
-│   ├── config/       # Configuration files
+├── backend/          # Express.js API server with MongoDB
+│   ├── config/       # Configuration and database connection
+│   │   ├── index.js      # Centralized configuration
+│   │   └── database.js   # MongoDB connection management
 │   ├── src/
-│   │   ├── controllers/  # Business logic
+│   │   ├── controllers/  # Business logic (planned)
 │   │   ├── middleware/   # Custom middleware
-│   │   ├── models/       # Database models
+│   │   ├── models/       # Mongoose database models
 │   │   ├── routes/       # API routes (versioned)
 │   │   └── utils/        # Utility functions
 │   ├── .env.example      # Environment variables template
 │   ├── package.json      # Dependencies and scripts
+│   ├── README.md         # Backend documentation
 │   └── server.js         # Main server file
 └── frontend/         # Frontend client (coming soon)
 ```
@@ -24,8 +27,25 @@ simple-blog/
 
 ### Prerequisites
 
-- Node.js (v18 or higher)
-- npm
+Before getting started, ensure you have the following installed and set up:
+
+**Required Software:**
+- **Node.js** (v16.20.1 or higher) - [Download here](https://nodejs.org/)
+- **npm** (comes with Node.js) or **yarn** package manager
+- **Git** - [Download here](https://git-scm.com/) for cloning the repository
+
+**Required Services:**
+- **MongoDB Atlas account** ([Setup Guide](./MONGODB_SETUP.md)) - Free cloud database
+
+**Development Tools (Recommended):**
+- **VS Code** or your preferred code editor
+- **Postman** or similar API testing tool
+- **MongoDB Compass** (optional) - GUI for MongoDB
+
+**System Requirements:**
+- **RAM**: Minimum 4GB (8GB recommended)
+- **Storage**: At least 1GB free space
+- **Network**: Internet connection for MongoDB Atlas and package downloads
 
 ### Installation
 
@@ -51,7 +71,9 @@ simple-blog/
 
 2. **Configure Environment Variables**
    
-   Edit the `.env` file with your specific values:
+   > 📋 **Need help setting up MongoDB Atlas?** Follow our [MongoDB Atlas Setup Guide](./MONGODB_SETUP.md)
+   
+   Edit the `.env` file with your MongoDB Atlas credentials:
    ```bash
    # Server Configuration
    PORT=5000                    # Server port (default: 5000)
@@ -59,12 +81,18 @@ simple-blog/
    
    # API Configuration
    API_VERSION=v1              # API version (v1, v2 when available)
+   
+   # Database Configuration
+   MONGODB_URI=mongodb+srv://username:password@simple-blog.xxxxx.mongodb.net
+   DB_NAME=simple-blog         # Base database name
    ```
 
    **Required Environment Variables:**
    - `PORT`: Server port number (default: 5000)
    - `NODE_ENV`: Application environment (development/production)
    - `API_VERSION`: API version for routing (currently v1)
+   - `MONGODB_URI`: MongoDB Atlas connection string
+   - `DB_NAME`: Base database name (automatically appends environment)
 
 ## Running the Application
 
@@ -95,23 +123,38 @@ npm start
 
 ### Current Backend Features
 
-- Express.js v5.1.0 server with modular architecture
-- Environment-based configuration management
-- API versioning (`/api/v1`)
-- Request logging middleware
-- Error handling middleware
-- Health check endpoints
-- Structured folder organization
+- **Express.js v5.1.0** - Modern web framework with enhanced performance
+- **MongoDB Atlas Integration** - Cloud database with automatic environment separation
+- **Environment Configuration** - Clean development/production separation
+- **Database Connection Management** - Automatic connection handling with status monitoring
+- **Health Monitoring** - Database status and server health checks
+- **API Versioning** - Structured API routing (`/api/v1`)
+- **Request Logging** - Comprehensive request/response logging
+- **Error Handling** - Professional error handling middleware
+- **Modular Architecture** - Scalable code organization
 
 ### Available Endpoints
 
 **Server Information:**
 - `GET /` - Server status and API information
-- `GET /health` - Health check endpoint
+- `GET /health` - Health check with database connection status
 
 **API Overview:**
 - `GET /api` - Available API versions
 - `GET /api/v1` - V1 API documentation
+
+### Database
+
+**Environment-Specific Databases:**
+- Development: `simple-blog-development`
+- Production: `simple-blog-production`
+
+**Database Features:**
+- Automatic connection management
+- Connection pooling (max 10 connections)
+- Environment-aware database selection
+- Graceful error handling
+- Connection status monitoring
 
 ## Development
 
@@ -119,19 +162,23 @@ npm start
 
 The backend follows a modular architecture pattern:
 
-- **Configuration**: Centralized config management with environment variables
+- **Configuration**: Centralized config management with environment variables and database connection
+- **Database**: MongoDB Atlas integration with Mongoose ODM and environment separation
 - **Middleware**: Custom middleware for logging, error handling, and request processing
 - **Routing**: Versioned API routes with clear separation of concerns
-- **Controllers**: Business logic separated from route definitions
-- **Models**: Database models and schema definitions
+- **Controllers**: Business logic separated from route definitions (planned)
+- **Models**: Mongoose database models and schema definitions
 - **Utils**: Shared utility functions and helpers
 
 ### Technology Stack
 
 **Backend:**
-- Express.js v5.1.0 - Web framework
-- dotenv v17.2.1 - Environment variable management
-- nodemon v3.1.10 - Development auto-restart
+- **Runtime**: Node.js v16.20.1+
+- **Framework**: Express.js v5.1.0
+- **Database**: MongoDB Atlas
+- **ODM**: Mongoose v8.17.0
+- **Environment**: dotenv v17.2.1
+- **Development**: nodemon v3.1.10
 
 ## Scripts
 
@@ -143,14 +190,6 @@ npm run dev    # Start development server with auto-restart
 npm test       # Run tests (to be implemented)
 ```
 
-## Contributing
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add some amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
 ## License
 
-This project is licensed under the ISC License.
+This project is licensed under the MIT License.
