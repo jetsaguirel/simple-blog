@@ -154,6 +154,27 @@ Before getting started, ensure you have the following installed and set up:
    JWT_SECRET=your-super-secret-jwt-key-here
    ```
 
+3. **Generate a Secure JWT Secret**
+   
+   For security, you need to generate a strong, random JWT secret. Use one of these methods:
+   
+   **Method 1: Using Node.js (Recommended)**
+   ```bash
+   node -e "console.log(require('crypto').randomBytes(64).toString('hex'))"
+   ```
+   
+   **Method 2: Using OpenSSL (if available)**
+   ```bash
+   openssl rand -hex 64
+   ```
+   
+   **Method 3: Using PowerShell**
+   ```powershell
+   -join ((1..128) | ForEach {[char][int]((65..90)+(97..122)+(48..57) | Get-Random)})
+   ```
+   
+   Copy the generated string and replace `your-super-secret-jwt-key-here` in your `.env` file.
+
 ### Running the Application
 
 1. **Start the Backend Server**
@@ -287,17 +308,6 @@ curl -X POST http://localhost:5000/api/v1/blogs \
 - [ ] State management
 - [ ] API integration
 
-### 📋 Planned Features
-- [ ] Rich text editor for blog posts
-- [ ] Image upload functionality
-- [ ] Comments system
-- [ ] Search functionality
-- [ ] User roles and permissions
-- [ ] Email verification
-- [ ] Password reset functionality
-- [ ] Rate limiting
-- [ ] API caching
-
 ## Contributing
 
 1. Fork the repository
@@ -309,8 +319,6 @@ curl -X POST http://localhost:5000/api/v1/blogs \
 ## Documentation
 
 - [API Documentation](./API_DOCUMENTATION.md) - Complete API reference
-- [Development Roadmap](./ROADMAP.md) - Project roadmap and milestones
-- [4-Hour Sprint Guide](./4-HOUR-SPRINT.md) - Rapid development guide
 - [MongoDB Setup Guide](./MONGODB_SETUP.md) - Database setup instructions
 
 ## License
