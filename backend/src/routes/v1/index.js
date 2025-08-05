@@ -3,9 +3,9 @@ const router = express.Router();
 
 // V1 API Routes
 // Import v1 route modules
-// const authRoutes = require('./authRoutes');
-// const blogRoutes = require('./blogRoutes');
-// const userRoutes = require('./userRoutes');
+const authRoutes = require('./authRoutes');
+const blogRoutes = require('./blogRoutes');
+const userRoutes = require('./userRoutes');
 
 // V1 API documentation endpoint
 router.get('/', (req, res) => {
@@ -16,9 +16,9 @@ router.get('/', (req, res) => {
     deprecation: null, // Will add deprecation notice when v2 is ready
     endpoints: {
       auth: {
-        login: 'POST /auth/login',
         register: 'POST /auth/register',
-        logout: 'POST /auth/logout'
+        login: 'POST /auth/login',
+        me: 'GET /auth/me'
       },
       blogs: {
         list: 'GET /blogs',
@@ -26,19 +26,21 @@ router.get('/', (req, res) => {
         get: 'GET /blogs/:id',
         update: 'PUT /blogs/:id',
         delete: 'DELETE /blogs/:id',
-        react: 'POST /blogs/:id/reactions'
+        like: 'POST /blogs/:id/like',
+        dislike: 'POST /blogs/:id/dislike'
       },
       users: {
-        profile: 'GET /users/:id',
-        update: 'PUT /users/:id'
+        profile: 'GET /users/profile',
+        updateProfile: 'PUT /users/profile',
+        getUser: 'GET /users/:id'
       }
     }
   });
 });
 
 // Mount v1 route modules
-// router.use('/auth', authRoutes);
-// router.use('/blogs', blogRoutes);
-// router.use('/users', userRoutes);
+router.use('/auth', authRoutes);
+router.use('/blogs', blogRoutes);
+router.use('/users', userRoutes);
 
 module.exports = router;
