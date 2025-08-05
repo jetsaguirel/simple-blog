@@ -104,15 +104,11 @@ MongoDB Atlas is a fully-managed cloud database service that handles all the com
 
 ### Development Environment
 ```bash
-MONGODB_URI=mongodb+srv://devuser:devpassword@simple-blog-dev.xxxxx.mongodb.net
-DB_NAME=simple-blog
 NODE_ENV=development
 ```
 
 ### Production Environment
 ```bash
-MONGODB_URI=mongodb+srv://produser:prodpassword@simple-blog-prod.xxxxx.mongodb.net
-DB_NAME=simple-blog
 NODE_ENV=production
 ```
 
