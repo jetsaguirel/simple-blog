@@ -1,4 +1,5 @@
 const express = require('express');
+const cors = require('cors');
 const config = require('./config');
 const { connectDB, getConnectionStatus } = require('./config/database');
 const app = express();
@@ -11,11 +12,12 @@ const routes = require('./src/routes');
 const middleware = require('./src/middleware');
 
 // Global Middleware
+app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Security & CORS middleware (add when needed)
-// app.use(cors());
+// Security & CORS middleware
+// Additional security middleware can be added here
 // app.use(helmet());
 
 // Request logging

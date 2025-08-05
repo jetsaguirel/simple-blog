@@ -1,26 +1,90 @@
 # Simple Blog
 
-A full-stack blog application built with modern web technologies. Features a professional Node.js/Express.js backend with MongoDB Atlas integration, environment-aware configuration, and scalable architecture designed for production use.
+A full-stack blog application built with the MERN stack (MongoDB, Express.js, React, Node.js). Features user authentication, blog management, and user profile with a MVC architecture.
+
+## Current Status
+
+✅ **Backend Complete** - Production-ready API with authentication, blog CRUD, and reactions system  
+🔄 **Frontend Pending** - React application to be implemented next
+
+## Features
+
+### Authentication & User Management
+- User registration and login with JWT tokens
+- Password hashing with bcryptjs
+- Protected route middleware
+- User profile management with password updates
+- Public user profiles for blog authors
+
+### Blog Management
+- Full CRUD operations for blog posts
+- Like/dislike reactions with toggle functionality
+- Ownership validation (only authors can edit/delete)
+- Public blog viewing without authentication
+- Embedded reactions system for performance
+
+### Technical Features
+- RESTful API with proper HTTP methods
+- Input validation with express-validator
+- Professional MVC architecture
+- Clean separation of concerns
+- Comprehensive error handling
+- API versioning (v1)
+- CORS enabled for frontend integration
+
+## Technology Stack
+
+### Backend (Implemented)
+- **Runtime**: Node.js v16.20.1+
+- **Framework**: Express.js v5.1.0
+- **Database**: MongoDB Atlas with Mongoose v8.17.0
+- **Authentication**: JWT (jsonwebtoken) + bcryptjs
+- **Validation**: express-validator
+- **Security**: CORS enabled
+- **Environment**: dotenv for configuration
+- **Development**: nodemon for hot reloading
+
+### Frontend (Planned)
+- **Framework**: React 18+
+- **Routing**: React Router v6
+- **HTTP Client**: Axios
+- **State Management**: React Context + useReducer
+- **Styling**: CSS Modules or Styled Components
 
 ## Project Structure
 
 ```
 simple-blog/
-├── backend/          # Express.js API server with MongoDB
-│   ├── config/       # Configuration and database connection
-│   │   ├── index.js      # Centralized configuration
-│   │   └── database.js   # MongoDB connection management
+├── backend/                    # Express.js API server
+│   ├── config/
+│   │   ├── index.js           # Centralized configuration
+│   │   └── database.js        # MongoDB connection management
 │   ├── src/
-│   │   ├── controllers/  # Business logic (planned)
-│   │   ├── middleware/   # Custom middleware
-│   │   ├── models/       # Mongoose database models
-│   │   ├── routes/       # API routes (versioned)
-│   │   └── utils/        # Utility functions
-│   ├── .env.example      # Environment variables template
-│   ├── package.json      # Dependencies and scripts
-│   ├── README.md         # Backend documentation
-│   └── server.js         # Main server file
-└── frontend/         # Frontend client (coming soon)
+│   │   ├── controllers/       # Business logic layer
+│   │   │   ├── AuthController.js    # Authentication logic
+│   │   │   ├── UserController.js    # User management logic
+│   │   │   └── BlogController.js    # Blog CRUD and reactions
+│   │   ├── middleware/
+│   │   │   ├── auth.js        # JWT authentication middleware
+│   │   │   └── index.js       # Middleware aggregation
+│   │   ├── models/
+│   │   │   ├── User.js        # User schema with password hashing
+│   │   │   └── Blog.js        # Blog schema with embedded reactions
+│   │   └── routes/
+│   │       ├── index.js       # Main router with versioning
+│   │       └── v1/            # API v1 routes
+│   │           ├── index.js         # v1 API documentation endpoint
+│   │           ├── authRoutes.js    # Authentication endpoints
+│   │           ├── userRoutes.js    # User management endpoints
+│   │           └── blogRoutes.js    # Blog CRUD and reactions
+│   ├── .env.example           # Environment variables template
+│   ├── package.json           # Dependencies and scripts
+│   └── server.js              # Main server file
+├── frontend/                  # React client (to be implemented)
+├── API_DOCUMENTATION.md       # Complete API documentation
+├── ROADMAP.md                 # Development roadmap
+├── 4-HOUR-SPRINT.md          # Sprint implementation guide
+└── README.md                  # This file
 ```
 
 ## Getting Started
@@ -47,7 +111,7 @@ Before getting started, ensure you have the following installed and set up:
 - **Storage**: At least 1GB free space
 - **Network**: Internet connection for MongoDB Atlas and package downloads
 
-### Installation
+### Installation & Setup
 
 1. **Clone the repository**
    ```bash
@@ -84,69 +148,183 @@ Before getting started, ensure you have the following installed and set up:
    
    # Database Configuration
    MONGODB_URI=mongodb+srv://username:password@simple-blog.xxxxx.mongodb.net
+   DB_NAME=simple-blog         # Database name
+   
+   # JWT Configuration
+   JWT_SECRET=your-super-secret-jwt-key-here
+   ```
+
+### Running the Application
+
+1. **Start the Backend Server**
+   ```bash
+   cd backend
+   npm run dev          # Development mode with auto-restart
+   # or
+   npm start           # Production mode
+   ```
+
+2. **Verify Backend is Running**
+   - Backend API: http://localhost:5000
+   - API Documentation: http://localhost:5000/api/v1
+   - Health Check: http://localhost:5000/health
+
+## API Endpoints
+
+### Quick Reference
+
+**Base URL:** `http://localhost:5000/api/v1`
+
+#### Authentication
+- `POST /auth/register` - Register new user
+- `POST /auth/login` - Login user
+- `GET /auth/me` - Get current user (protected)
+
+#### User Management
+- `GET /users/profile` - Get own profile (protected)
+- `PUT /users/profile` - Update profile (protected)
+- `GET /users/:id` - Get public user profile
+
+#### Blog Management
+- `GET /blogs` - Get all blogs (public)
+- `GET /blogs/:id` - Get single blog (public)
+- `POST /blogs` - Create blog (protected)
+- `PUT /blogs/:id` - Update blog (protected, owner only)
+- `DELETE /blogs/:id` - Delete blog (protected, owner only)
+- `POST /blogs/:id/like` - Like/unlike blog (protected)
+- `POST /blogs/:id/dislike` - Dislike/remove dislike (protected)
+
+📚 **Complete API Documentation:** [API_DOCUMENTATION.md](./API_DOCUMENTATION.md)
    DB_NAME=simple-blog         # Base database name
    ```
 
-   **Required Environment Variables:**
-   - `PORT`: Server port number (default: 5000)
-   - `NODE_ENV`: Application environment (development/production)
-   - `API_VERSION`: API version for routing (currently v1)
-   - `MONGODB_URI`: MongoDB Atlas connection string
-   - `DB_NAME`: Base database name (automatically appends environment)
+## Testing the API
 
-## Running the Application
+### Using curl
 
-### Backend Server
-
-**Development Mode** (with auto-restart):
+**Register a new user:**
 ```bash
-cd backend
-npm run dev
+curl -X POST http://localhost:5000/api/v1/auth/register \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "John Doe",
+    "email": "john@example.com",
+    "password": "password123"
+  }'
 ```
 
-**Production Mode**:
+**Login:**
 ```bash
-cd backend
-npm start
+curl -X POST http://localhost:5000/api/v1/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email": "john@example.com",
+    "password": "password123"
+  }'
 ```
 
-The backend server will start on `http://localhost:5000` by default.
-
-### Frontend Client *(coming soon)*
-
+**Create a blog post:**
 ```bash
-cd frontend
-npm start
+curl -X POST http://localhost:5000/api/v1/blogs \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN" \
+  -d '{
+    "title": "My First Blog Post",
+    "content": "This is the content of my blog post..."
+  }'
 ```
 
-## API Documentation
+### Using Postman
 
-### Current Backend Features
+1. Import the API endpoints from the documentation
+2. Set base URL to `http://localhost:5000/api/v1`
+3. For protected routes, add Authorization header: `Bearer YOUR_JWT_TOKEN`
 
-- **Express.js v5.1.0** - Modern web framework with enhanced performance
-- **MongoDB Atlas Integration** - Cloud database with automatic environment separation
-- **Environment Configuration** - Clean development/production separation
-- **Database Connection Management** - Automatic connection handling with status monitoring
-- **Health Monitoring** - Database status and server health checks
-- **API Versioning** - Structured API routing (`/api/v1`)
-- **Request Logging** - Comprehensive request/response logging
-- **Error Handling** - Professional error handling middleware
-- **Modular Architecture** - Scalable code organization
+## Database Schema
 
-### Available Endpoints
+### User Model
+```javascript
+{
+  name: String (required),
+  email: String (required, unique),
+  password: String (required, hashed),
+  createdAt: Date,
+  updatedAt: Date
+}
+```
 
-**Server Information:**
-- `GET /` - Server status and API information
-- `GET /health` - Health check with database connection status
+### Blog Model
+```javascript
+{
+  title: String (required),
+  content: String (required),
+  author: ObjectId (ref: User, required),
+  likes: [ObjectId] (ref: User),
+  dislikes: [ObjectId] (ref: User),
+  createdAt: Date,
+  updatedAt: Date
+}
+```
 
-**API Overview:**
-- `GET /api` - Available API versions
-- `GET /api/v1` - V1 API documentation
+## Development Status
 
-### Database
+### ✅ Completed Features
+- [x] User authentication with JWT
+- [x] User registration and login
+- [x] Password hashing with bcryptjs
+- [x] User profile management
+- [x] Blog CRUD operations
+- [x] Like/dislike reactions system
+- [x] Ownership validation
+- [x] Input validation
+- [x] Error handling
+- [x] MVC architecture
+- [x] API documentation
 
-**Environment-Specific Databases:**
-- Development: `simple-blog-development`
+### 🔄 In Progress
+- [ ] Frontend React application
+- [ ] User interface components
+- [ ] State management
+- [ ] API integration
+
+### 📋 Planned Features
+- [ ] Rich text editor for blog posts
+- [ ] Image upload functionality
+- [ ] Comments system
+- [ ] Search functionality
+- [ ] User roles and permissions
+- [ ] Email verification
+- [ ] Password reset functionality
+- [ ] Rate limiting
+- [ ] API caching
+
+## Contributing
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add some amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+## Documentation
+
+- [API Documentation](./API_DOCUMENTATION.md) - Complete API reference
+- [Development Roadmap](./ROADMAP.md) - Project roadmap and milestones
+- [4-Hour Sprint Guide](./4-HOUR-SPRINT.md) - Rapid development guide
+- [MongoDB Setup Guide](./MONGODB_SETUP.md) - Database setup instructions
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## Support
+
+If you encounter any issues or have questions:
+
+1. Check the [API Documentation](./API_DOCUMENTATION.md)
+2. Review the [MongoDB Setup Guide](./MONGODB_SETUP.md)
+3. Open an issue on GitHub
+4. Check existing issues for solutions
 - Production: `simple-blog-production`
 
 **Database Features:**
