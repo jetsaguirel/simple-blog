@@ -1,6 +1,10 @@
 const express = require('express');
 const config = require('./config');
+const { connectDB, getConnectionStatus } = require('./config/database');
 const app = express();
+
+// Connect to database
+connectDB();
 
 // Import modular components  
 const routes = require('./src/routes');
@@ -31,11 +35,18 @@ app.get('/', (req, res) => {
 });
 
 app.get('/health', (req, res) => {
+  const dbStatus = getConnectionStatus();
   res.json({ 
     status: 'OK', 
     uptime: process.uptime(),
     environment: config.nodeEnv,
     port: config.port,
+    database: {
+      connected: dbStatus.isConnected,
+      name: dbStatus.name,
+      host: dbStatus.host,
+      readyState: dbStatus.readyState
+    },
     timestamp: new Date().toISOString()
   });
 });
