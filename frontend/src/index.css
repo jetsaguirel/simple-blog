@@ -1,0 +1,19 @@
+@import "tailwindcss";
+@plugin "daisyui";
+
+@theme {
+  --color-primary: oklch(0.7 0.15 142);
+  --color-primary-content: oklch(1 0 0);
+  --color-secondary: oklch(0.7 0.15 250);
+  --color-secondary-content: oklch(1 0 0);
+  --color-accent: oklch(0.7 0.15 342);
+  --color-accent-content: oklch(1 0 0);
+  --color-neutral: oklch(0.3 0.02 264);
+  --color-neutral-content: oklch(1 0 0);
+  --color-base-100: oklch(1 0 0);
+  --color-base-200: oklch(0.96 0 0);
+  --color-base-300: oklch(0.94 0 0);
+  --color-base-content: oklch(0.2 0 0);
+}
+
+/* Custom CSS can go here */
