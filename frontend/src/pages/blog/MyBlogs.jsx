@@ -200,25 +200,6 @@ const MyBlogs = () => {
           ))}
         </div>
       )}
-
-      {/* Quick Actions */}
-      {blogs.length > 0 && (
-        <div className="mt-8 text-center">
-          <div className="card bg-base-200">
-            <div className="card-body">
-              <h3 className="card-title justify-center mb-4">Quick Actions</h3>
-              <div className="flex justify-center space-x-4">
-                <Link to="/create-blog" className="btn btn-primary">
-                  Write New Blog
-                </Link>
-                <Link to="/" className="btn btn-ghost">
-                  View All Blogs
-                </Link>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 };
