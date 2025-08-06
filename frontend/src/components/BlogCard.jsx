@@ -42,6 +42,26 @@ const BlogCard = ({
     }
   };
 
+  const handleShare = async (e) => {
+    e.preventDefault();
+    const shareData = {
+      title: blog.title,
+      text: getExcerpt(blog.content, 100) + '...',
+      url: `${window.location.origin}/blog/${blog._id}`
+    };
+
+    try {
+      if (navigator.share) {
+        await navigator.share(shareData);
+      } else {
+        await navigator.clipboard.writeText(shareData.url);
+        alert('Link copied to clipboard!');
+      }
+    } catch (error) {
+      console.error('Error sharing:', error);
+    }
+  };
+
   const cardClass = compact 
     ? "card bg-base-100 shadow-lg hover:shadow-xl transition-shadow"
     : "card bg-base-100 shadow-xl";
@@ -56,9 +76,6 @@ const BlogCard = ({
               <Link to={`/blog/${blog._id}`} className="hover:link">
                 {blog.title}
               </Link>
-              <div className="badge badge-secondary">
-                {formatDate(blog.createdAt)}
-              </div>
             </h2>
             
             {/* Author */}
@@ -78,13 +95,6 @@ const BlogCard = ({
             <p className={`text-base-content/80 mb-4 ${compact ? 'line-clamp-2' : 'line-clamp-3'}`}>
               {getExcerpt(blog.content, compact ? 150 : 200)}
             </p>
-            
-            {/* Update info */}
-            {blog.updatedAt !== blog.createdAt && (
-              <p className="text-xs text-base-content/60 mb-4">
-                Updated: {formatDate(blog.updatedAt)}
-              </p>
-            )}
           </div>
 
           {/* Owner Actions */}
@@ -117,6 +127,14 @@ const BlogCard = ({
                 </li>
               </ul>
             </div>
+          )}
+        </div>
+
+        {/* Date Info */}
+        <div className="flex justify-between items-center text-xs text-base-content/60 mb-4">
+          <span>Created: {formatDate(blog.createdAt)}</span>
+          {blog.updatedAt !== blog.createdAt && (
+            <span>Updated: {formatDate(blog.updatedAt)}</span>
           )}
         </div>
 
@@ -155,9 +173,20 @@ const BlogCard = ({
             )}
           </div>
           
-          <Link to={`/blog/${blog._id}`} className="btn btn-primary btn-sm">
-            Read More
-          </Link>
+          <div className="flex space-x-2">
+            <button 
+              onClick={handleShare}
+              className="btn btn-ghost btn-sm"
+              title="Share this blog"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z" />
+              </svg>
+            </button>
+            <Link to={`/blog/${blog._id}`} className="btn btn-primary btn-sm">
+              Read More
+            </Link>
+          </div>
         </div>
       </div>
     </div>
