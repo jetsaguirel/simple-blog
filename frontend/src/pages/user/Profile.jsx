@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { authService, userService } from '../../services';
 import Loading from '../../components/Loading';
+import useDocumentTitle from '../../hooks/useDocumentTitle';
 
 const Profile = () => {
   const { user, updateUser } = useAuth();
@@ -23,6 +24,9 @@ const Profile = () => {
   const [passwordError, setPasswordError] = useState('');
   const [success, setSuccess] = useState('');
   const [passwordSuccess, setPasswordSuccess] = useState('');
+
+  // Set custom title for profile page
+  useDocumentTitle(user?.name ? `${user.name}'s Profile` : 'My Profile');
 
   useEffect(() => {
     if (user) {
