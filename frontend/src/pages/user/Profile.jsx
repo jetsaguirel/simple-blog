@@ -10,6 +10,7 @@ const Profile = () => {
     name: '',
     email: '',
   });
+  const [completeUserData, setCompleteUserData] = useState(null);
   const [passwordData, setPasswordData] = useState({
     currentPassword: '',
     newPassword: '',
@@ -28,6 +29,22 @@ const Profile = () => {
         name: user.name || '',
         email: user.email || '',
       });
+    }
+  }, [user]);
+
+  // Fetch complete user profile data including createdAt
+  useEffect(() => {
+    const fetchCompleteProfile = async () => {
+      try {
+        const response = await userService.getProfile();
+        setCompleteUserData(response.data.user || response.data.data || response.data);
+      } catch (error) {
+        console.error('Error fetching complete profile:', error);
+      }
+    };
+
+    if (user) {
+      fetchCompleteProfile();
     }
   }, [user]);
 
@@ -126,13 +143,6 @@ const Profile = () => {
         </nav>
 
         <div className="flex items-center space-x-4">
-          <div className="avatar">
-            <div className="w-16 h-16 rounded-full bg-primary text-primary-content flex items-center justify-center">
-              <span className="text-2xl font-bold">
-                {user.name?.charAt(0)?.toUpperCase()}
-              </span>
-            </div>
-          </div>
           <div>
             <h1 className="text-3xl font-bold">Profile Settings</h1>
             <p className="text-base-content/70">
@@ -166,7 +176,7 @@ const Profile = () => {
             )}
 
             <form onSubmit={handleProfileSubmit}>
-              <div className="form-control w-full mb-4">
+              <div className="form-control w-full mb-6">
                 <label className="label">
                   <span className="label-text font-semibold">Full Name</span>
                 </label>
@@ -230,7 +240,7 @@ const Profile = () => {
             )}
 
             <form onSubmit={handlePasswordSubmit}>
-              <div className="form-control w-full mb-4">
+              <div className="form-control w-full mb-6">
                 <label className="label">
                   <span className="label-text font-semibold">Current Password</span>
                 </label>
@@ -244,7 +254,7 @@ const Profile = () => {
                 />
               </div>
 
-              <div className="form-control w-full mb-4">
+              <div className="form-control w-full mb-6">
                 <label className="label">
                   <span className="label-text font-semibold">New Password</span>
                 </label>
@@ -294,18 +304,20 @@ const Profile = () => {
 
       {/* Account Information */}
       <div className="mt-8">
-        <div className="card bg-base-200">
+        <div className="card bg-base-100 shadow-xl">
           <div className="card-body">
-            <h3 className="card-title mb-4">Account Information</h3>
-            <div className="grid md:grid-cols-2 gap-4 text-sm">
+            <h2 className="card-title mb-6">
+              Account Information
+            </h2>
+            <div className="space-y-4 text-sm">
               <div>
                 <span className="font-semibold">Member since:</span>
                 <span className="ml-2 text-base-content/70">
-                  {new Date(user.createdAt).toLocaleDateString('en-US', {
+                  {completeUserData?.createdAt ? new Date(completeUserData.createdAt).toLocaleDateString('en-US', {
                     year: 'numeric',
                     month: 'long',
                     day: 'numeric'
-                  })}
+                  }) : 'Loading...'}
                 </span>
               </div>
               <div>
@@ -313,17 +325,6 @@ const Profile = () => {
                 <span className="ml-2 text-base-content/70 font-mono text-xs">
                   {user._id || user.id}
                 </span>
-              </div>
-            </div>
-            
-            <div className="mt-4">
-              <div className="flex space-x-4">
-                <Link to="/my-blogs" className="btn btn-primary btn-sm">
-                  View My Blogs
-                </Link>
-                <Link to="/create-blog" className="btn btn-secondary btn-sm">
-                  Write New Blog
-                </Link>
               </div>
             </div>
           </div>

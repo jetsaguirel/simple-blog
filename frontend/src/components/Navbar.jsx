@@ -59,31 +59,13 @@ const Navbar = () => {
       
       <div className="navbar-end">
         {isAuthenticated ? (
-          <div className="dropdown dropdown-end">
-            <div tabIndex={0} role="button" className="btn btn-ghost btn-circle avatar">
-              <div className="avatar placeholder">
-                <div className="bg-neutral text-neutral-content w-10 rounded-full">
-                  <span className="text-xl">{user?.name?.charAt(0)?.toUpperCase() || 'U'}</span>
-                </div>
-              </div>
-            </div>
-            <ul
-              tabIndex={0}
-              className="menu menu-sm dropdown-content bg-base-100 rounded-box z-[1] mt-3 w-52 p-2 shadow"
-            >
-              <li>
-                <div className="justify-between">
-                  {user?.name}
-                  <span className="badge">Profile</span>
-                </div>
-              </li>
-              <li>
-                <Link to="/profile">Settings</Link>
-              </li>
-              <li>
-                <button onClick={handleLogout}>Logout</button>
-              </li>
-            </ul>
+          <div className="flex items-center space-x-2">
+            <Link to="/profile" className="btn btn-primary">
+              Profile
+            </Link>
+            <button onClick={handleLogout} className="btn btn-outline btn-primary">
+              Logout
+            </button>
           </div>
         ) : (
           <div className="space-x-2">
