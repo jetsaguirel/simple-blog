@@ -1,91 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { blogAPI } from '../services/api';
+import { blogService } from '../services';
 import { useAuth } from '../context/AuthContext';
 import { Link } from 'react-router-dom';
 import RegisterModal from '../components/RegisterModal';
 import LoginModal from '../components/LoginModal';
-
-const BlogCard = ({ blog, onLike, onDislike }) => {
-  const { isAuthenticated, user } = useAuth();
-  const isLiked = blog.likes?.includes(user?._id);
-  const isDisliked = blog.dislikes?.includes(user?._id);
-
-  const handleLike = async () => {
-    if (!isAuthenticated) return;
-    try {
-      await onLike(blog._id);
-    } catch (error) {
-      console.error('Error liking blog:', error);
-    }
-  };
-
-  const handleDislike = async () => {
-    if (!isAuthenticated) return;
-    try {
-      await onDislike(blog._id);
-    } catch (error) {
-      console.error('Error disliking blog:', error);
-    }
-  };
-
-  return (
-    <div className="card bg-base-100 shadow-xl">
-      <div className="card-body">
-        <h2 className="card-title">
-          {blog.title}
-          <div className="badge badge-secondary">
-            {new Date(blog.createdAt).toLocaleDateString()}
-          </div>
-        </h2>
-        
-        <p className="text-sm text-base-content/70 mb-2">
-          By: <Link to={`/user/${blog.author._id}`} className="link link-primary">
-            {blog.author.name}
-          </Link>
-        </p>
-        
-        <p className="line-clamp-3">
-          {blog.content.length > 200 
-            ? `${blog.content.substring(0, 200)}...` 
-            : blog.content
-          }
-        </p>
-        
-        <div className="card-actions justify-between items-center mt-4">
-          <div className="flex space-x-2">
-            {isAuthenticated && (
-              <>
-                <button 
-                  className={`btn btn-sm ${isLiked ? 'btn-primary' : 'btn-outline'}`}
-                  onClick={handleLike}
-                >
-                  👍 {blog.likes?.length || 0}
-                </button>
-                <button 
-                  className={`btn btn-sm ${isDisliked ? 'btn-error' : 'btn-outline'}`}
-                  onClick={handleDislike}
-                >
-                  👎 {blog.dislikes?.length || 0}
-                </button>
-              </>
-            )}
-            {!isAuthenticated && (
-              <div className="flex space-x-2 text-sm text-base-content/70">
-                <span>👍 {blog.likes?.length || 0}</span>
-                <span>👎 {blog.dislikes?.length || 0}</span>
-                <span className="text-xs">Login to interact</span>
-              </div>
-            )}
-          </div>
-          
-          <Link to={`/blog/${blog._id}`} className="btn btn-primary btn-sm">
-            Read More
-          </Link>
-        </div>
-      </div>
-    </div>
-  );
-};
+import { BlogCard } from '../components';
 
 const Home = () => {
   const [blogs, setBlogs] = useState([]);
@@ -102,7 +21,7 @@ const Home = () => {
   const fetchBlogs = async () => {
     try {
       setLoading(true);
-      const response = await blogAPI.getAllBlogs();
+      const response = await blogService.getAllBlogs();
       setBlogs(response.data.blogs);
     } catch (error) {
       setError('Failed to fetch blogs');
@@ -114,7 +33,7 @@ const Home = () => {
 
   const handleLike = async (blogId) => {
     try {
-      await blogAPI.likeBlog(blogId);
+      await blogService.likeBlog(blogId);
       // Refresh blogs to get updated like counts
       fetchBlogs();
     } catch (error) {
@@ -124,11 +43,22 @@ const Home = () => {
 
   const handleDislike = async (blogId) => {
     try {
-      await blogAPI.dislikeBlog(blogId);
+      await blogService.dislikeBlog(blogId);
       // Refresh blogs to get updated dislike counts
       fetchBlogs();
     } catch (error) {
       console.error('Error disliking blog:', error);
+    }
+  };
+
+  const handleDelete = async (blogId) => {
+    try {
+      await blogService.deleteBlog(blogId);
+      // Remove the deleted blog from the current list
+      setBlogs(blogs.filter(blog => blog._id !== blogId));
+    } catch (error) {
+      console.error('Error deleting blog:', error);
+      alert('Failed to delete blog. Please try again.');
     }
   };
 
@@ -230,6 +160,7 @@ const Home = () => {
               blog={blog}
               onLike={handleLike}
               onDislike={handleDislike}
+              onDelete={handleDelete}
             />
           ))}
         </div>

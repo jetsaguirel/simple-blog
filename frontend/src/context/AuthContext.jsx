@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useReducer, useEffect } from 'react';
-import { authAPI } from '../services/api';
+import { authService } from '../services';
 
 // Initial state
 const initialState = {
@@ -67,7 +67,7 @@ export const AuthProvider = ({ children }) => {
       const token = localStorage.getItem('token');
       if (token) {
         try {
-          const response = await authAPI.getProfile();
+          const response = await authService.getProfile();
           dispatch({
             type: authActions.LOGIN_SUCCESS,
             payload: {
@@ -93,7 +93,7 @@ export const AuthProvider = ({ children }) => {
   const login = async (credentials) => {
     try {
       dispatch({ type: authActions.SET_LOADING, payload: true });
-      const response = await authAPI.login(credentials);
+      const response = await authService.login(credentials);
       
       // Handle different response structures from backend
       const token = response.data.token || response.data.data?.token;
@@ -102,6 +102,8 @@ export const AuthProvider = ({ children }) => {
       if (!token || !user) {
         throw new Error('Invalid response structure');
       }
+      
+      console.log('Login successful, user object:', user); // Debug log
       
       localStorage.setItem('token', token);
       localStorage.setItem('user', JSON.stringify(user));
@@ -126,7 +128,7 @@ export const AuthProvider = ({ children }) => {
   const register = async (userData) => {
     try {
       dispatch({ type: authActions.SET_LOADING, payload: true });
-      const response = await authAPI.register(userData);
+      const response = await authService.register(userData);
       
       // Handle different response structures from backend
       const token = response.data.token || response.data.data?.token;
