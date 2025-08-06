@@ -4,6 +4,7 @@ import { useAuth } from '../../context/AuthContext';
 import { blogService } from '../../services';
 import Loading from '../../components/Loading';
 import ErrorMessage from '../../components/ErrorMessage';
+import useDocumentTitle from '../../hooks/useDocumentTitle';
 
 const MyBlogs = () => {
   const { user } = useAuth();
@@ -11,6 +12,9 @@ const MyBlogs = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [deleteLoading, setDeleteLoading] = useState(null);
+
+  // Set page title
+  useDocumentTitle('My Blogs');
 
   useEffect(() => {
     fetchMyBlogs();

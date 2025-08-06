@@ -4,7 +4,25 @@ const Blog = require('../models/Blog');
 class BlogController {
   static async getAllBlogs(req, res) {
     try {
-      const blogs = await Blog.find()
+      // Build query filter based on query parameters
+      const filter = {};
+      
+      // Filter by author if provided
+      if (req.query.author) {
+        filter.author = req.query.author;
+      }
+      
+      // Filter by search if provided
+      if (req.query.search) {
+        filter.$or = [
+          { title: { $regex: req.query.search, $options: 'i' } },
+          { content: { $regex: req.query.search, $options: 'i' } }
+        ];
+      }
+      
+      console.log('BlogController - getAllBlogs filter:', filter); // Debug log
+      
+      const blogs = await Blog.find(filter)
         .populate('author', 'name email')
         .sort({ createdAt: -1 })
         .lean();
@@ -82,6 +100,10 @@ class BlogController {
 
   static async updateBlog(req, res) {
     try {
+      console.log('UpdateBlog - Request params:', req.params);
+      console.log('UpdateBlog - Request body:', req.body);
+      console.log('UpdateBlog - Request user:', req.user ? { id: req.user._id, name: req.user.name } : 'No user');
+      
       // Check for validation errors
       const errors = validationResult(req);
       if (!errors.isEmpty()) {
@@ -91,14 +113,27 @@ class BlogController {
       const blog = await Blog.findById(req.params.id);
 
       if (!blog) {
+        console.log('UpdateBlog - Blog not found for ID:', req.params.id);
         return res.status(404).json({ error: 'Blog not found' });
       }
 
+      console.log('UpdateBlog - Blog found:', { 
+        id: blog._id, 
+        title: blog.title, 
+        author: blog.author.toString() 
+      });
+      
       // Check if user is the author
       if (blog.author.toString() !== req.user._id.toString()) {
+        console.log('UpdateBlog - Authorization failed:', {
+          blogAuthor: blog.author.toString(),
+          currentUser: req.user._id.toString()
+        });
         return res.status(403).json({ error: 'Not authorized to update this blog' });
       }
 
+      console.log('UpdateBlog - Authorization successful');
+      
       const { title, content } = req.body;
 
       if (title) blog.title = title;
@@ -106,6 +141,8 @@ class BlogController {
 
       await blog.save();
       await blog.populate('author', 'name email');
+
+      console.log('UpdateBlog - Blog updated successfully');
 
       res.json({
         blog: {
@@ -152,27 +189,45 @@ class BlogController {
       }
 
       const userId = req.user._id;
+      const userIdString = userId.toString();
 
-      // Remove from dislikes if present
-      blog.dislikes = blog.dislikes.filter(id => id.toString() !== userId.toString());
+      // Check if user already liked the blog
+      const alreadyLiked = blog.likes.some(id => id.toString() === userIdString);
+      const alreadyDisliked = blog.dislikes.some(id => id.toString() === userIdString);
 
-      // Toggle like
-      const likeIndex = blog.likes.findIndex(id => id.toString() === userId.toString());
-      if (likeIndex > -1) {
-        // User already liked, remove like
-        blog.likes.splice(likeIndex, 1);
+      let updateQuery = {};
+      let message = '';
+
+      if (alreadyLiked) {
+        // Remove like
+        updateQuery = { $pull: { likes: userId } };
+        message = 'Like removed';
       } else {
-        // User hasn't liked, add like
-        blog.likes.push(userId);
+        // Add like and remove dislike if present
+        updateQuery = { 
+          $addToSet: { likes: userId },
+          $pull: { dislikes: userId }
+        };
+        message = 'Blog liked';
       }
 
-      await blog.save();
+      // Update without triggering updatedAt
+      const updatedBlog = await Blog.findByIdAndUpdate(
+        req.params.id,
+        updateQuery,
+        { 
+          new: true,
+          timestamps: false // This prevents updatedAt from being modified
+        }
+      );
+
+      const isLiked = updatedBlog.likes.some(id => id.toString() === userIdString);
 
       res.json({
-        likeCount: blog.likes.length,
-        dislikeCount: blog.dislikes.length,
-        userReaction: blog.likes.includes(userId) ? 'like' : null,
-        message: blog.likes.includes(userId) ? 'Blog liked' : 'Like removed'
+        likeCount: updatedBlog.likes.length,
+        dislikeCount: updatedBlog.dislikes.length,
+        userReaction: isLiked ? 'like' : null,
+        message: message
       });
     } catch (error) {
       console.error('Like blog error:', error);
@@ -189,27 +244,45 @@ class BlogController {
       }
 
       const userId = req.user._id;
+      const userIdString = userId.toString();
 
-      // Remove from likes if present
-      blog.likes = blog.likes.filter(id => id.toString() !== userId.toString());
+      // Check if user already disliked the blog
+      const alreadyLiked = blog.likes.some(id => id.toString() === userIdString);
+      const alreadyDisliked = blog.dislikes.some(id => id.toString() === userIdString);
 
-      // Toggle dislike
-      const dislikeIndex = blog.dislikes.findIndex(id => id.toString() === userId.toString());
-      if (dislikeIndex > -1) {
-        // User already disliked, remove dislike
-        blog.dislikes.splice(dislikeIndex, 1);
+      let updateQuery = {};
+      let message = '';
+
+      if (alreadyDisliked) {
+        // Remove dislike
+        updateQuery = { $pull: { dislikes: userId } };
+        message = 'Dislike removed';
       } else {
-        // User hasn't disliked, add dislike
-        blog.dislikes.push(userId);
+        // Add dislike and remove like if present
+        updateQuery = { 
+          $addToSet: { dislikes: userId },
+          $pull: { likes: userId }
+        };
+        message = 'Blog disliked';
       }
 
-      await blog.save();
+      // Update without triggering updatedAt
+      const updatedBlog = await Blog.findByIdAndUpdate(
+        req.params.id,
+        updateQuery,
+        { 
+          new: true,
+          timestamps: false // This prevents updatedAt from being modified
+        }
+      );
+
+      const isDisliked = updatedBlog.dislikes.some(id => id.toString() === userIdString);
 
       res.json({
-        likeCount: blog.likes.length,
-        dislikeCount: blog.dislikes.length,
-        userReaction: blog.dislikes.includes(userId) ? 'dislike' : null,
-        message: blog.dislikes.includes(userId) ? 'Blog disliked' : 'Dislike removed'
+        likeCount: updatedBlog.likes.length,
+        dislikeCount: updatedBlog.dislikes.length,
+        userReaction: isDisliked ? 'dislike' : null,
+        message: message
       });
     } catch (error) {
       console.error('Dislike blog error:', error);

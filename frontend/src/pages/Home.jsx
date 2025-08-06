@@ -5,6 +5,7 @@ import { Link } from 'react-router-dom';
 import RegisterModal from '../components/RegisterModal';
 import LoginModal from '../components/LoginModal';
 import { BlogCard } from '../components';
+import useDocumentTitle from '../hooks/useDocumentTitle';
 
 const Home = () => {
   const [blogs, setBlogs] = useState([]);
@@ -13,6 +14,9 @@ const Home = () => {
   const [showRegisterModal, setShowRegisterModal] = useState(false);
   const [showLoginModal, setShowLoginModal] = useState(false);
   const { isAuthenticated, user } = useAuth();
+
+  // Set page title
+  useDocumentTitle('Home');
 
   useEffect(() => {
     fetchBlogs();

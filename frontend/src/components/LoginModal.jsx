@@ -24,17 +24,29 @@ const LoginModal = ({ isOpen, onClose, onSwitchToRegister }) => {
     setLoading(true);
     setError('');
 
-    const result = await login(formData);
-    
-    if (result.success) {
-      onClose();
-      // Reset form
-      setFormData({ email: '', password: '' });
-    } else {
-      setError(result.error);
+    console.log('LoginModal - Starting login attempt...'); // Debug log
+
+    try {
+      const result = await login(formData);
+      
+      console.log('LoginModal - Login result:', result); // Debug log
+      
+      if (result.success) {
+        console.log('LoginModal - Login successful, closing modal'); // Debug log
+        onClose();
+        // Reset form
+        setFormData({ email: '', password: '' });
+        setError(''); // Clear any previous errors
+      } else {
+        console.log('LoginModal - Login failed, setting error:', result.error); // Debug log
+        setError(result.error || 'Login failed. Please try again.');
+      }
+    } catch (error) {
+      console.error('LoginModal - Unexpected error:', error);
+      setError('An unexpected error occurred. Please try again.');
+    } finally {
+      setLoading(false);
     }
-    
-    setLoading(false);
   };
 
   const handleClose = () => {

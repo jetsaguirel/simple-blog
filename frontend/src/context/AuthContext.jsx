@@ -92,7 +92,7 @@ export const AuthProvider = ({ children }) => {
   // Login function
   const login = async (credentials) => {
     try {
-      dispatch({ type: authActions.SET_LOADING, payload: true });
+      // Don't set global loading for login attempts - let components handle their own loading
       const response = await authService.login(credentials);
       
       // Handle different response structures from backend
@@ -116,10 +116,10 @@ export const AuthProvider = ({ children }) => {
       return { success: true };
     } catch (error) {
       console.error('Login error:', error);
-      dispatch({ type: authActions.AUTH_ERROR });
+      // Don't change global state for login failures - just return the error
       return { 
         success: false, 
-        error: error.response?.data?.message || error.message || 'Login failed' 
+        error: error.response?.data?.error || error.response?.data?.message || error.message || 'Login failed' 
       };
     }
   };
@@ -127,7 +127,7 @@ export const AuthProvider = ({ children }) => {
   // Register function
   const register = async (userData) => {
     try {
-      dispatch({ type: authActions.SET_LOADING, payload: true });
+      // Don't set global loading for register attempts - let components handle their own loading
       const response = await authService.register(userData);
       
       // Handle different response structures from backend
@@ -149,10 +149,10 @@ export const AuthProvider = ({ children }) => {
       return { success: true };
     } catch (error) {
       console.error('Registration error:', error);
-      dispatch({ type: authActions.AUTH_ERROR });
+      // Don't change global state for registration failures - just return the error
       return { 
         success: false, 
-        error: error.response?.data?.message || error.message || 'Registration failed' 
+        error: error.response?.data?.error || error.response?.data?.message || error.message || 'Registration failed' 
       };
     }
   };
@@ -164,11 +164,23 @@ export const AuthProvider = ({ children }) => {
     dispatch({ type: authActions.LOGOUT });
   };
 
+  // Update user data in context and localStorage
+  const updateUser = (updatedUserData) => {
+    const updatedUser = { ...state.user, ...updatedUserData };
+    localStorage.setItem('user', JSON.stringify(updatedUser));
+    
+    dispatch({
+      type: authActions.LOGIN_SUCCESS,
+      payload: { user: updatedUser, token: state.token },
+    });
+  };
+
   const value = {
     ...state,
     login,
     register,
     logout,
+    updateUser,
   };
 
   return (

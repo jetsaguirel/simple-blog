@@ -5,6 +5,7 @@ import { blogService } from '../../services';
 import { validateBlogForm, estimateReadingTime } from '../../utils';
 import Loading from '../../components/Loading';
 import ErrorMessage from '../../components/ErrorMessage';
+import useDocumentTitle from '../../hooks/useDocumentTitle';
 
 const EditBlog = () => {
   const { id } = useParams();
@@ -20,6 +21,9 @@ const EditBlog = () => {
   const [error, setError] = useState('');
   const [validationErrors, setValidationErrors] = useState({});
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+
+  // Set dynamic title based on blog being edited
+  useDocumentTitle(blog?.title ? `Edit: ${blog.title}` : 'Edit Blog');
 
   useEffect(() => {
     // Only fetch blog if user is available and has an ID

@@ -3,6 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { userService, blogService } from '../../services';
 import Loading from '../../components/Loading';
 import ErrorMessage from '../../components/ErrorMessage';
+import useDocumentTitle from '../../hooks/useDocumentTitle';
 
 const UserProfile = () => {
   const { id } = useParams();
@@ -10,6 +11,9 @@ const UserProfile = () => {
   const [blogs, setBlogs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+
+  // Set dynamic title based on user name
+  useDocumentTitle(user?.name ? `${user.name}'s Profile` : 'User Profile');
 
   useEffect(() => {
     fetchUserData();

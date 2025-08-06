@@ -4,6 +4,7 @@ import { useAuth } from '../../context/AuthContext';
 import { blogService } from '../../services';
 import Loading from '../../components/Loading';
 import ErrorMessage from '../../components/ErrorMessage';
+import useDocumentTitle from '../../hooks/useDocumentTitle';
 
 const BlogDetail = () => {
   const { id } = useParams();
@@ -13,6 +14,9 @@ const BlogDetail = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [actionLoading, setActionLoading] = useState(false);
+
+  // Set dynamic title based on blog title
+  useDocumentTitle(blog?.title ? blog.title : 'Blog Post');
 
   useEffect(() => {
     fetchBlog();

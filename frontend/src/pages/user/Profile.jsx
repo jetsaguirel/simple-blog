@@ -1,14 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { userService, authService } from '../../services';
+import { authService, userService } from '../../services';
 import Loading from '../../components/Loading';
+import useDocumentTitle from '../../hooks/useDocumentTitle';
 
 const Profile = () => {
-  const { user, login } = useAuth();
+  const { user, updateUser } = useAuth();
   const [profileData, setProfileData] = useState({
     name: '',
     email: '',
+    currentPassword: '', // Add password confirmation for profile updates
   });
   const [completeUserData, setCompleteUserData] = useState(null);
   const [passwordData, setPasswordData] = useState({
@@ -23,11 +25,15 @@ const Profile = () => {
   const [success, setSuccess] = useState('');
   const [passwordSuccess, setPasswordSuccess] = useState('');
 
+  // Set custom title for profile page
+  useDocumentTitle(user?.name ? `${user.name}'s Profile` : 'My Profile');
+
   useEffect(() => {
     if (user) {
       setProfileData({
         name: user.name || '',
         email: user.email || '',
+        currentPassword: '', // Reset password field
       });
     }
   }, [user]);
@@ -36,8 +42,8 @@ const Profile = () => {
   useEffect(() => {
     const fetchCompleteProfile = async () => {
       try {
-        const response = await userService.getProfile();
-        setCompleteUserData(response.data.user || response.data.data || response.data);
+        const response = await authService.getProfile();
+        setCompleteUserData(response.data.user);
       } catch (error) {
         console.error('Error fetching complete profile:', error);
       }
@@ -68,14 +74,31 @@ const Profile = () => {
     setError('');
     setSuccess('');
 
+    // Validate that password is provided for profile updates
+    if (!profileData.currentPassword) {
+      setError('Please enter your current password to confirm changes');
+      setLoading(false);
+      return;
+    }
+
     try {
-      const response = await userService.updateProfile(profileData);
+      // Send profile data including current password for verification
+      const updateData = {
+        name: profileData.name,
+        email: profileData.email,
+        currentPassword: profileData.currentPassword
+      };
+      
+      const response = await userService.updateProfile(updateData);
       
       // Update auth context with new user data
       const updatedUser = response.data.user || response.data.data || response.data;
-      await login({ email: updatedUser.email }); // Refresh auth state
+      updateUser(updatedUser); // Update local auth state
       
       setSuccess('Profile updated successfully!');
+      
+      // Clear the password field after successful update
+      setProfileData(prev => ({ ...prev, currentPassword: '' }));
       
       // Clear success message after 3 seconds
       setTimeout(() => setSuccess(''), 3000);
@@ -200,6 +223,22 @@ const Profile = () => {
                   className="input input-bordered w-full"
                   value={profileData.email}
                   onChange={handleProfileChange}
+                  required
+                />
+              </div>
+
+              <div className="form-control w-full mb-6">
+                <label className="label">
+                  <span className="label-text font-semibold">Current Password</span>
+                  <span className="label-text-alt text-warning">Required to confirm changes</span>
+                </label>
+                <input
+                  type="password"
+                  name="currentPassword"
+                  className="input input-bordered w-full"
+                  value={profileData.currentPassword}
+                  onChange={handleProfileChange}
+                  placeholder="Enter your current password"
                   required
                 />
               </div>

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { blogService } from '../../services';
+import useDocumentTitle from '../../hooks/useDocumentTitle';
 
 const CreateBlog = () => {
   const navigate = useNavigate();
@@ -12,6 +13,9 @@ const CreateBlog = () => {
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+
+  // Set page title
+  useDocumentTitle('Create Blog');
 
   const handleChange = (e) => {
     setFormData({
@@ -77,11 +81,6 @@ const CreateBlog = () => {
             <p className="text-base-content/70 mt-2">
               Share your thoughts and ideas with the community
             </p>
-          </div>
-          <div className="avatar">
-            <div className="w-12 h-12 rounded-full bg-primary text-primary-content flex items-center justify-center">
-              <span className="text-lg">{user?.name?.charAt(0)?.toUpperCase()}</span>
-            </div>
           </div>
         </div>
       </div>
