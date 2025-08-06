@@ -103,15 +103,19 @@ export const useBlogActions = () => {
   }, []);
 
   const isOwner = useCallback((blog) => {
-    return isAuthenticated && user?._id === blog?.author?._id;
+    const userId = user?._id || user?.id;
+    const blogAuthorId = blog?.author?._id || blog?.author?.id;
+    return isAuthenticated && userId && blogAuthorId && userId.toString() === blogAuthorId.toString();
   }, [isAuthenticated, user]);
 
   const isLiked = useCallback((blog) => {
-    return blog?.likes?.includes(user?._id);
+    const userId = user?._id || user?.id;
+    return blog?.likes?.includes(userId);
   }, [user]);
 
   const isDisliked = useCallback((blog) => {
-    return blog?.dislikes?.includes(user?._id);
+    const userId = user?._id || user?.id;
+    return blog?.dislikes?.includes(userId);
   }, [user]);
 
   return {

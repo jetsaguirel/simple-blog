@@ -16,9 +16,14 @@ const BlogCard = ({
   
   if (!blog) return null;
   
-  const isOwner = isAuthenticated && user?._id === blog.author?._id;
-  const isLiked = blog.likes?.includes(user?._id);
-  const isDisliked = blog.dislikes?.includes(user?._id);
+  // Handle both _id and id fields for user and blog author
+  const userId = user?._id || user?.id;
+  const blogAuthorId = blog.author?._id || blog.author?.id;
+  const isOwner = isAuthenticated && userId && blogAuthorId && userId.toString() === blogAuthorId.toString();
+  
+  // Handle both _id and id fields for likes/dislikes arrays
+  const isLiked = blog.likes?.includes(userId);
+  const isDisliked = blog.dislikes?.includes(userId);
 
   const handleLike = async (e) => {
     e.preventDefault();
