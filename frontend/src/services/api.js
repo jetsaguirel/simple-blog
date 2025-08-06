@@ -39,29 +39,4 @@ api.interceptors.response.use(
   }
 );
 
-// Auth API calls
-export const authAPI = {
-  register: (userData) => api.post('/auth/register', userData),
-  login: (credentials) => api.post('/auth/login', credentials),
-  getProfile: () => api.get('/auth/me'),
-};
-
-// Blog API calls
-export const blogAPI = {
-  getAllBlogs: () => api.get('/blogs'),
-  getBlog: (id) => api.get(`/blogs/${id}`),
-  createBlog: (blogData) => api.post('/blogs', blogData),
-  updateBlog: (id, blogData) => api.put(`/blogs/${id}`, blogData),
-  deleteBlog: (id) => api.delete(`/blogs/${id}`),
-  likeBlog: (id) => api.post(`/blogs/${id}/like`),
-  dislikeBlog: (id) => api.post(`/blogs/${id}/dislike`),
-};
-
-// User API calls
-export const userAPI = {
-  getProfile: () => api.get('/users/profile'),
-  updateProfile: (userData) => api.put('/users/profile', userData),
-  getUserProfile: (id) => api.get(`/users/${id}`),
-};
-
 export default api;

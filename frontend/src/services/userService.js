@@ -1,11 +1,6 @@
 import api from './api';
 
 export const userService = {
-  // Get current user profile
-  getProfile: async () => {
-    return api.get('/users/profile');
-  },
-
   // Update current user profile
   updateProfile: async (userData) => {
     return api.put('/users/profile', userData);

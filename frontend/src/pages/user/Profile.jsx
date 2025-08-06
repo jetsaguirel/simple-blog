@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { userService, authService } from '../../services';
+import { authService } from '../../services';
 import Loading from '../../components/Loading';
 
 const Profile = () => {
@@ -36,7 +36,7 @@ const Profile = () => {
   useEffect(() => {
     const fetchCompleteProfile = async () => {
       try {
-        const response = await userService.getProfile();
+        const response = await authService.getProfile();
         setCompleteUserData(response.data.user || response.data.data || response.data);
       } catch (error) {
         console.error('Error fetching complete profile:', error);
