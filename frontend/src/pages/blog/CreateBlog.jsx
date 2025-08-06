@@ -78,11 +78,6 @@ const CreateBlog = () => {
               Share your thoughts and ideas with the community
             </p>
           </div>
-          <div className="avatar">
-            <div className="w-12 h-12 rounded-full bg-primary text-primary-content flex items-center justify-center">
-              <span className="text-lg">{user?.name?.charAt(0)?.toUpperCase()}</span>
-            </div>
-          </div>
         </div>
       </div>
 
