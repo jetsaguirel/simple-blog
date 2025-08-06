@@ -27,12 +27,18 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      // Remove invalid token
-      localStorage.removeItem('token');
-      localStorage.removeItem('user');
-      // Only redirect if we're not already on login page
-      if (window.location.pathname !== '/login') {
-        window.location.href = '/login';
+      // Don't redirect if this is a login or register attempt
+      const isAuthEndpoint = error.config?.url?.includes('/auth/login') || 
+                            error.config?.url?.includes('/auth/register');
+      
+      if (!isAuthEndpoint) {
+        // Remove invalid token
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        // Only redirect if we're not already on login page
+        if (window.location.pathname !== '/login') {
+          window.location.href = '/login';
+        }
       }
     }
     return Promise.reject(error);

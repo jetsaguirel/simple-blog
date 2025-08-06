@@ -40,18 +40,24 @@ const RegisterModal = ({ isOpen, onClose, onSwitchToLogin }) => {
       return;
     }
 
-    const { confirmPassword, ...registerData } = formData;
-    const result = await register(registerData);
-    
-    if (result.success) {
-      onClose();
-      // Reset form
-      setFormData({ name: '', email: '', password: '', confirmPassword: '' });
-    } else {
-      setError(result.error);
+    try {
+      const { confirmPassword, ...registerData } = formData;
+      const result = await register(registerData);
+      
+      if (result.success) {
+        onClose();
+        // Reset form
+        setFormData({ name: '', email: '', password: '', confirmPassword: '' });
+        setError(''); // Clear any previous errors
+      } else {
+        setError(result.error || 'Registration failed. Please try again.');
+      }
+    } catch (error) {
+      console.error('RegisterModal - Unexpected error:', error);
+      setError('An unexpected error occurred. Please try again.');
+    } finally {
+      setLoading(false);
     }
-    
-    setLoading(false);
   };
 
   const handleClose = () => {
