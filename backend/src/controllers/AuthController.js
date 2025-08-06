@@ -92,7 +92,8 @@ class AuthController {
         user: { 
           id: req.user._id,
           name: req.user.name, 
-          email: req.user.email 
+          email: req.user.email,
+          createdAt: req.user.createdAt
         }
       });
     } catch (error) {

@@ -4,7 +4,25 @@ const Blog = require('../models/Blog');
 class BlogController {
   static async getAllBlogs(req, res) {
     try {
-      const blogs = await Blog.find()
+      // Build query filter based on query parameters
+      const filter = {};
+      
+      // Filter by author if provided
+      if (req.query.author) {
+        filter.author = req.query.author;
+      }
+      
+      // Filter by search if provided
+      if (req.query.search) {
+        filter.$or = [
+          { title: { $regex: req.query.search, $options: 'i' } },
+          { content: { $regex: req.query.search, $options: 'i' } }
+        ];
+      }
+      
+      console.log('BlogController - getAllBlogs filter:', filter); // Debug log
+      
+      const blogs = await Blog.find(filter)
         .populate('author', 'name email')
         .sort({ createdAt: -1 })
         .lean();
@@ -82,6 +100,10 @@ class BlogController {
 
   static async updateBlog(req, res) {
     try {
+      console.log('UpdateBlog - Request params:', req.params);
+      console.log('UpdateBlog - Request body:', req.body);
+      console.log('UpdateBlog - Request user:', req.user ? { id: req.user._id, name: req.user.name } : 'No user');
+      
       // Check for validation errors
       const errors = validationResult(req);
       if (!errors.isEmpty()) {
@@ -91,14 +113,27 @@ class BlogController {
       const blog = await Blog.findById(req.params.id);
 
       if (!blog) {
+        console.log('UpdateBlog - Blog not found for ID:', req.params.id);
         return res.status(404).json({ error: 'Blog not found' });
       }
 
+      console.log('UpdateBlog - Blog found:', { 
+        id: blog._id, 
+        title: blog.title, 
+        author: blog.author.toString() 
+      });
+      
       // Check if user is the author
       if (blog.author.toString() !== req.user._id.toString()) {
+        console.log('UpdateBlog - Authorization failed:', {
+          blogAuthor: blog.author.toString(),
+          currentUser: req.user._id.toString()
+        });
         return res.status(403).json({ error: 'Not authorized to update this blog' });
       }
 
+      console.log('UpdateBlog - Authorization successful');
+      
       const { title, content } = req.body;
 
       if (title) blog.title = title;
@@ -106,6 +141,8 @@ class BlogController {
 
       await blog.save();
       await blog.populate('author', 'name email');
+
+      console.log('UpdateBlog - Blog updated successfully');
 
       res.json({
         blog: {

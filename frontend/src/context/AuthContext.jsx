@@ -164,11 +164,23 @@ export const AuthProvider = ({ children }) => {
     dispatch({ type: authActions.LOGOUT });
   };
 
+  // Update user data in context and localStorage
+  const updateUser = (updatedUserData) => {
+    const updatedUser = { ...state.user, ...updatedUserData };
+    localStorage.setItem('user', JSON.stringify(updatedUser));
+    
+    dispatch({
+      type: authActions.LOGIN_SUCCESS,
+      payload: { user: updatedUser, token: state.token },
+    });
+  };
+
   const value = {
     ...state,
     login,
     register,
     logout,
+    updateUser,
   };
 
   return (

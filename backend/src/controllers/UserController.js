@@ -40,6 +40,17 @@ class UserController {
         return res.status(404).json({ error: 'User not found' });
       }
 
+      // Require current password for any profile changes (security measure)
+      if (!currentPassword) {
+        return res.status(400).json({ error: 'Current password is required to update profile' });
+      }
+
+      // Verify current password
+      const isCurrentPasswordValid = await bcrypt.compare(currentPassword, user.password);
+      if (!isCurrentPasswordValid) {
+        return res.status(400).json({ error: 'Current password is incorrect' });
+      }
+
       // If updating email, check if it's already taken by another user
       if (email && email !== user.email) {
         const existingUser = await User.findOne({ email, _id: { $ne: req.user._id } });
@@ -48,15 +59,10 @@ class UserController {
         }
       }
 
-      // If updating password, verify current password
+      // If updating password, validate new password
       if (newPassword) {
-        if (!currentPassword) {
-          return res.status(400).json({ error: 'Current password is required to change password' });
-        }
-
-        const isCurrentPasswordValid = await bcrypt.compare(currentPassword, user.password);
-        if (!isCurrentPasswordValid) {
-          return res.status(400).json({ error: 'Current password is incorrect' });
+        if (newPassword.length < 6) {
+          return res.status(400).json({ error: 'New password must be at least 6 characters long' });
         }
       }
 
