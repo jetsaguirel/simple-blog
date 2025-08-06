@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { blogAPI } from '../services/api';
+import { blogService } from '../services';
 import { useAuth } from '../context/AuthContext';
 import { Link } from 'react-router-dom';
 import RegisterModal from '../components/RegisterModal';
@@ -102,7 +102,7 @@ const Home = () => {
   const fetchBlogs = async () => {
     try {
       setLoading(true);
-      const response = await blogAPI.getAllBlogs();
+      const response = await blogService.getAllBlogs();
       setBlogs(response.data.blogs);
     } catch (error) {
       setError('Failed to fetch blogs');
@@ -114,7 +114,7 @@ const Home = () => {
 
   const handleLike = async (blogId) => {
     try {
-      await blogAPI.likeBlog(blogId);
+      await blogService.likeBlog(blogId);
       // Refresh blogs to get updated like counts
       fetchBlogs();
     } catch (error) {
@@ -124,7 +124,7 @@ const Home = () => {
 
   const handleDislike = async (blogId) => {
     try {
-      await blogAPI.dislikeBlog(blogId);
+      await blogService.dislikeBlog(blogId);
       // Refresh blogs to get updated dislike counts
       fetchBlogs();
     } catch (error) {
