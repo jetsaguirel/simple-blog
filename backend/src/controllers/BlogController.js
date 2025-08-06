@@ -189,27 +189,45 @@ class BlogController {
       }
 
       const userId = req.user._id;
+      const userIdString = userId.toString();
 
-      // Remove from dislikes if present
-      blog.dislikes = blog.dislikes.filter(id => id.toString() !== userId.toString());
+      // Check if user already liked the blog
+      const alreadyLiked = blog.likes.some(id => id.toString() === userIdString);
+      const alreadyDisliked = blog.dislikes.some(id => id.toString() === userIdString);
 
-      // Toggle like
-      const likeIndex = blog.likes.findIndex(id => id.toString() === userId.toString());
-      if (likeIndex > -1) {
-        // User already liked, remove like
-        blog.likes.splice(likeIndex, 1);
+      let updateQuery = {};
+      let message = '';
+
+      if (alreadyLiked) {
+        // Remove like
+        updateQuery = { $pull: { likes: userId } };
+        message = 'Like removed';
       } else {
-        // User hasn't liked, add like
-        blog.likes.push(userId);
+        // Add like and remove dislike if present
+        updateQuery = { 
+          $addToSet: { likes: userId },
+          $pull: { dislikes: userId }
+        };
+        message = 'Blog liked';
       }
 
-      await blog.save();
+      // Update without triggering updatedAt
+      const updatedBlog = await Blog.findByIdAndUpdate(
+        req.params.id,
+        updateQuery,
+        { 
+          new: true,
+          timestamps: false // This prevents updatedAt from being modified
+        }
+      );
+
+      const isLiked = updatedBlog.likes.some(id => id.toString() === userIdString);
 
       res.json({
-        likeCount: blog.likes.length,
-        dislikeCount: blog.dislikes.length,
-        userReaction: blog.likes.includes(userId) ? 'like' : null,
-        message: blog.likes.includes(userId) ? 'Blog liked' : 'Like removed'
+        likeCount: updatedBlog.likes.length,
+        dislikeCount: updatedBlog.dislikes.length,
+        userReaction: isLiked ? 'like' : null,
+        message: message
       });
     } catch (error) {
       console.error('Like blog error:', error);
@@ -226,27 +244,45 @@ class BlogController {
       }
 
       const userId = req.user._id;
+      const userIdString = userId.toString();
 
-      // Remove from likes if present
-      blog.likes = blog.likes.filter(id => id.toString() !== userId.toString());
+      // Check if user already disliked the blog
+      const alreadyLiked = blog.likes.some(id => id.toString() === userIdString);
+      const alreadyDisliked = blog.dislikes.some(id => id.toString() === userIdString);
 
-      // Toggle dislike
-      const dislikeIndex = blog.dislikes.findIndex(id => id.toString() === userId.toString());
-      if (dislikeIndex > -1) {
-        // User already disliked, remove dislike
-        blog.dislikes.splice(dislikeIndex, 1);
+      let updateQuery = {};
+      let message = '';
+
+      if (alreadyDisliked) {
+        // Remove dislike
+        updateQuery = { $pull: { dislikes: userId } };
+        message = 'Dislike removed';
       } else {
-        // User hasn't disliked, add dislike
-        blog.dislikes.push(userId);
+        // Add dislike and remove like if present
+        updateQuery = { 
+          $addToSet: { dislikes: userId },
+          $pull: { likes: userId }
+        };
+        message = 'Blog disliked';
       }
 
-      await blog.save();
+      // Update without triggering updatedAt
+      const updatedBlog = await Blog.findByIdAndUpdate(
+        req.params.id,
+        updateQuery,
+        { 
+          new: true,
+          timestamps: false // This prevents updatedAt from being modified
+        }
+      );
+
+      const isDisliked = updatedBlog.dislikes.some(id => id.toString() === userIdString);
 
       res.json({
-        likeCount: blog.likes.length,
-        dislikeCount: blog.dislikes.length,
-        userReaction: blog.dislikes.includes(userId) ? 'dislike' : null,
-        message: blog.dislikes.includes(userId) ? 'Blog disliked' : 'Dislike removed'
+        likeCount: updatedBlog.likes.length,
+        dislikeCount: updatedBlog.dislikes.length,
+        userReaction: isDisliked ? 'dislike' : null,
+        message: message
       });
     } catch (error) {
       console.error('Dislike blog error:', error);

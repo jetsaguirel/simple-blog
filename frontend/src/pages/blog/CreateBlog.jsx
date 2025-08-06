@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { blogService } from '../../services';
+import useDocumentTitle from '../../hooks/useDocumentTitle';
 
 const CreateBlog = () => {
   const navigate = useNavigate();
@@ -12,6 +13,9 @@ const CreateBlog = () => {
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+
+  // Set page title
+  useDocumentTitle('Create Blog');
 
   const handleChange = (e) => {
     setFormData({
