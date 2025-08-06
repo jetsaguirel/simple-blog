@@ -68,38 +68,21 @@ const BlogCard = ({
 
   return (
     <div className={cardClass}>
-      <div className="card-body">
-        <div className="flex justify-between items-start">
-          <div className="flex-1">
-            {/* Title */}
-            <h2 className={`card-title ${compact ? 'text-lg' : 'text-xl'} mb-2`}>
-              <Link to={`/blog/${blog._id}`} className="hover:link">
+      <div className="card-body p-6 h-full flex flex-col">
+        {/* Header with title and owner actions */}
+        <div className="flex justify-between items-start mb-3">
+          <div className="flex-1 min-w-0 pr-2">
+            {/* Title - Single line with ellipsis */}
+            <h2 className={`card-title ${compact ? 'text-lg' : 'text-xl'} mb-0 line-clamp-1`}>
+              <Link to={`/blog/${blog._id}`} className="hover:link truncate">
                 {blog.title}
               </Link>
             </h2>
-            
-            {/* Author */}
-            {showAuthor && (
-              <p className="text-sm text-base-content/70 mb-2">
-                By:{' '}
-                <Link 
-                  to={`/user/${blog.author?._id}`} 
-                  className="link link-primary hover:link-secondary"
-                >
-                  {blog.author?.name}
-                </Link>
-              </p>
-            )}
-            
-            {/* Content Preview */}
-            <p className={`text-base-content/80 mb-4 ${compact ? 'line-clamp-2' : 'line-clamp-3'}`}>
-              {getExcerpt(blog.content, compact ? 150 : 200)}
-            </p>
           </div>
 
           {/* Owner Actions */}
           {isOwner && showActions && (
-            <div className="dropdown dropdown-end">
+            <div className="dropdown dropdown-end flex-shrink-0">
               <div tabIndex={0} role="button" className="btn btn-ghost btn-sm">
                 <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                   <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z" />
@@ -129,63 +112,92 @@ const BlogCard = ({
             </div>
           )}
         </div>
-
-        {/* Date Info */}
-        <div className="flex justify-between items-center text-xs text-base-content/60 mb-4">
-          <span>Created: {formatDate(blog.createdAt)}</span>
-          {blog.updatedAt !== blog.createdAt && (
-            <span>Updated: {formatDate(blog.updatedAt)}</span>
+        
+        {/* Top content section - stays at top */}
+        <div className="flex-shrink-0">
+          {/* Author */}
+          {showAuthor && (
+            <p className="text-sm text-base-content/70 mb-3">
+              By:{' '}
+              <Link 
+                to={`/user/${blog.author?._id}`} 
+                className="link link-primary hover:link-secondary"
+              >
+                {blog.author?.name}
+              </Link>
+            </p>
           )}
+          
+          {/* Content Preview - 2 lines with ellipsis */}
+          <div className="mb-1">
+            <p className="text-base-content/80 line-clamp-2 leading-relaxed">
+              {getExcerpt(blog.content, compact ? 120 : 150)}
+            </p>
+          </div>
         </div>
 
-        {/* Actions */}
-        <div className="card-actions justify-between items-center">
-          <div className="flex space-x-3">
-            {isAuthenticated && showActions ? (
-              <>
-                <button 
-                  className={`btn btn-sm ${isLiked ? 'btn-primary' : 'btn-outline'}`}
-                  onClick={handleLike}
-                >
-                  <span className="mr-1">👍</span>
-                  {blog.likes?.length || 0}
-                </button>
-                <button 
-                  className={`btn btn-sm ${isDisliked ? 'btn-error' : 'btn-outline'}`}
-                  onClick={handleDislike}
-                >
-                  <span className="mr-1">👎</span>
-                  {blog.dislikes?.length || 0}
-                </button>
-              </>
-            ) : (
-              <div className="flex space-x-3 text-sm text-base-content/70">
-                <span className="flex items-center space-x-1">
-                  <span>👍</span>
-                  <span>{blog.likes?.length || 0}</span>
-                </span>
-                <span className="flex items-center space-x-1">
-                  <span>👎</span>
-                  <span>{blog.dislikes?.length || 0}</span>
-                </span>
-                {!isAuthenticated && <span className="text-xs">Login to interact</span>}
-              </div>
+        {/* Spacer to push bottom content down */}
+        <div className="flex-grow"></div>
+
+        {/* Bottom content section - always at bottom */}
+        <div className="flex-shrink-0">
+          {/* Date Info */}
+          <div className="flex justify-between items-center text-xs text-base-content/60 mb-4 border-t pt-3">
+            <span>Created: {formatDate(blog.createdAt)}</span>
+            {blog.updatedAt !== blog.createdAt && (
+              <span>Updated: {formatDate(blog.updatedAt)}</span>
             )}
           </div>
-          
-          <div className="flex space-x-2">
-            <button 
-              onClick={handleShare}
-              className="btn btn-ghost btn-sm"
-              title="Share this blog"
-            >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z" />
-              </svg>
-            </button>
-            <Link to={`/blog/${blog._id}`} className="btn btn-primary btn-sm">
-              Read More
-            </Link>
+
+          {/* Actions */}
+          <div className="flex justify-between items-center">
+            <div className="flex space-x-3">
+              {isAuthenticated && showActions ? (
+                <>
+                  <button 
+                    className={`btn btn-sm ${isLiked ? 'btn-primary' : 'btn-outline'}`}
+                    onClick={handleLike}
+                  >
+                    <span className="mr-1">👍</span>
+                    {blog.likes?.length || 0}
+                  </button>
+                  <button 
+                    className={`btn btn-sm ${isDisliked ? 'btn-error' : 'btn-outline'}`}
+                    onClick={handleDislike}
+                  >
+                    <span className="mr-1">👎</span>
+                    {blog.dislikes?.length || 0}
+                  </button>
+                </>
+              ) : (
+                <div className="flex space-x-3 text-sm text-base-content/70">
+                  <span className="flex items-center space-x-1">
+                    <span>👍</span>
+                    <span>{blog.likes?.length || 0}</span>
+                  </span>
+                  <span className="flex items-center space-x-1">
+                    <span>👎</span>
+                    <span>{blog.dislikes?.length || 0}</span>
+                  </span>
+                  {!isAuthenticated && <span className="text-xs">Login to interact</span>}
+                </div>
+              )}
+            </div>
+            
+            <div className="flex space-x-2">
+              <button 
+                onClick={handleShare}
+                className="btn btn-ghost btn-sm"
+                title="Share this blog"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z" />
+                </svg>
+              </button>
+              <Link to={`/blog/${blog._id}`} className="btn btn-primary btn-sm">
+                Read More
+              </Link>
+            </div>
           </div>
         </div>
       </div>
